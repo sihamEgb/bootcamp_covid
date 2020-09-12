@@ -1,0 +1,69 @@
+:root{
+	--primaryColor: #f5b17b;
+	--secondaryColor_1: #4e709d;
+	--primaryColor_2: #89a4c7;
+	--primaryColor_3: #cdd5e0;
+
+}
+
+body{
+	font-family: 'Nunito Sans', sans-serif;
+	color: black;
+	margin:1rem;
+	padding:0.5rem;
+	width: 97vw;
+}
+
+header{
+	background-color: var(--primaryColor_2);
+	padding: 1rem;
+	color: whitesmoke;
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+.appContainer{
+	width: 95vw;
+}
+.graphContainer{
+	margin: 1rem;
+
+}
+.dataContainer{
+	margin: 1rem;
+}
+.dataTypeContainer{
+	margin: 1rem;
+}
+.dataTypeContainer button{
+	padding: 5px;
+	margin: 2px;
+}
+.continentsContainer{
+	margin: 1rem;
+}
+.continentsContainer button{
+	padding: 5px;
+	margin: 2px;
+}
+.countriesContainer{
+	margin: 1rem;
+}
+.countriesContainer button{
+	padding: 5px;
+	margin: 2px;
+	border: none;
+	background-color: transparent;
+}
+button:hover{
+	
+	background-color: var(--primaryColor);
+}
+.selected{
+	background-color: var(--primaryColor);
+	color: white;
+}
+footer{
+	background-color: var(--primaryColor_3);
+	padding: 1rem;
+
+}
