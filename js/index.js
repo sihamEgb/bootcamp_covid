@@ -9,6 +9,11 @@ const countriesByRegion = {};
 const WORLD_WIDE = 'worldwide';
 const CONTINENT = 'continent';
 const OTHER = 'other';
+
+// global object
+
+let dataArray = [];
+
 let regionsObj = {
 	// 'Africa': [],
 	// 'Asia':[],
@@ -20,7 +25,14 @@ let allCountries = [];
 // all data fields for each country
 const dataPerCountry = ['total cases','new cases','total deaths','new deaths','total recovered','in critical condition'];
 // all data fields for each continent
-const dataPerRegion = ['Confirmed cases','Number of Deaths','Number of recovered','Number of critical condition'];
+const dataPerRegion = [
+	{subdata:'confirmed',value:'Confirmed cases'},
+	{subdata:'deaths',value:'Number of Deaths'},
+	{subdata:'recovered',value:'Number of recovered'},
+	{subdata:'critical',value:'Number of critical condition'},
+
+]
+
 //['Africa','Asia','Europe','North America','South America','Antarctica','Oceania'];
 // local storage keys
 const REGIONS = "regions";
@@ -89,20 +101,56 @@ function drawChart2(){
 	});
  }
 
+ function getDummyCustomData(){
+	const customData = {};
+	const num1 = Math.floor(Math.random() * (200 -1) );
+	const num2 = Math.floor(Math.random() * (200 -1) );
+	const num3 = Math.floor(Math.random() * (200 -1) );
+	const num4 = Math.floor(Math.random() * (200 -1) );
+	customData[dataPerRegion[0].subdata] = num1;
+	customData[dataPerRegion[1].subdata] = num2;
+	customData[dataPerRegion[2].subdata] = num3;
+	customData[dataPerRegion[3].subdata] = num4;
+
+	return customData;
+ }
+function makeDummyData(region){
+	dataArray = [];
+	const countriesArr = regionsObj[region];
+	for(let i =0;i<countriesArr.length;i++)
+	{
+		const country = regionsObj[region][i];
+		const countryCode = getCountryCodeByName(country);
+		const customData = getDummyCustomData();
+		console.log("makeDummyData",customData);
+
+		dataArray.push(customData);
+	}
+}
+	
 function drawChart(region , dataType = dataPerRegion[0] ){
 	var ctx = document.getElementById('myChart').getContext('2d');
 	console.log("in draw chart function",ctx);
 	// variables for the chart
 	// chart type
-	const chartType = 'bar';
+	const chartType = 'line';
 	// data for X axis
 	const countries = regionsObj[region];
 	// label - name of data
-	const labelName = dataType;
+	const labelName = dataType.value;
 	// actual data for Y axis
-	const dataPerCountry = getAllDataByRegion(region);
-	const customDataPErCountry = dataPerRegion.map(data => data.confirmed);
-	// [12, 19, 3, 5, 2, 3];
+	// keep for testing
+	makeDummyData(region);
+	const dataPerCountry = dataArray;
+	// let dataPerCountry = null;
+	// dataPerCountry = getAllDataByRegion(region);
+	
+	console.log("datapercountrey ",dataPerCountry);
+	
+	const customDataPErCountry = 	dataPerCountry.map(data => data[dataType.subdata]);
+	//[1,1,1,1,10,24,451];
+	// console.log("dataPerCountry",dataPerCountry);
+	// console.log("customDataPErCountry",customDataPErCountry);
 	var myChart = new Chart(ctx, {
 			type: chartType,
 			data: {
@@ -110,7 +158,11 @@ function drawChart(region , dataType = dataPerRegion[0] ){
 					datasets: [{
 							label: labelName,
 							data: customDataPErCountry,
-					}]
+							backgroundColor: ['#cdd5e0',],
+							borderColor: ['#f5b17b',],
+							borderWidth: 1,
+					}
+				]
 			},
 			options: {
 					scales: {
@@ -125,10 +177,15 @@ function drawChart(region , dataType = dataPerRegion[0] ){
 
 }
 function handleCountry(e){
-	console.log(e.currentTarget);
+	console.log("handle country",e.target);
+
 	const country = e.target.dataset.country;
 	const countryCode = getCountryCodeByName(country);
 	console.log(countryCode);
+	updateSelected(e.target);
+	e.target.classList.add('selected');
+	console.log("handle country",e.target);
+
 	const dataPromise = getCovidByCountry(countryCode).then(
 		data => {
 			console.log(data);
@@ -163,7 +220,30 @@ function handleDataType(e){
 	console.log(dataType);
 
 	// TODO refine chart to show only sub section of data
-	// drawChart(region);
+
+	let data = null;
+	for(let i=0;i<dataPerRegion.length;i++)
+	{
+		if(dataPerRegion[i].subdata === dataType)
+		{
+			data = dataPerRegion[i];
+		}
+	}
+	// TODO refine chart for only this sub data
+	let selectedRegion = null;
+
+	const regionButtons = document.querySelectorAll('.region');
+	//createButton(key,handleRegion,'region',className);
+	
+	for(let i=0;i<regionButtons.length;i++)
+	{
+		if(regionButtons[i].classList.contains('selected'))
+		{
+			selectedRegion = regionButtons[i].dataset.region;
+		}
+		console.log("the selectd region is",selectedRegion);
+	}
+	drawChart(selectedRegion,data);
 }
 function createCountryData(data){
 	const container = document.querySelector('.dataContainer');
@@ -194,6 +274,9 @@ function handleRegion(e){
 	const container = document.querySelector('.countriesContainer');
 	const region = e.target.dataset.region;
 	const countriesArr = regionsObj[region];
+
+	const dataContainer = document.querySelector('.dataContainer');
+	dataContainer.innerHTML = "";
 	container.innerHTML = "";
 	for(let i=0;i<countriesArr.length;i++)
 	{
@@ -212,7 +295,7 @@ function handleRegion(e){
 		{
 			className = 'selected';
 		}
-		const myButton = createButton(dataPerRegion[i],handleDataType,'subdata',className);
+		const myButton = createButton(dataPerRegion[i].subdata,handleDataType,'subdata',className);
 		dataTypeContainer.appendChild(myButton);
 
 	}	
@@ -311,7 +394,7 @@ function getCountryCodeByName(countryName){
 	{
 		if(allCountries[i].name === countryName)
 		{
-			console.log("found country",allCountries[i].code);
+			// console.log("found country",allCountries[i].code);
 			return allCountries[i].code;
 		}
 	}
@@ -340,21 +423,33 @@ function getCustomData(data){
 	customData[dataPerRegion[3]] = data.data.latest_data.critical;
 	return customData;
 }
-function getAllDataByRegion(region){
+async function addCountryData(arr,data){
+	const dataPromise = getCovidByCountry(countryCode).then(
+		data => {
+			console.log(data);
+			const customData = getCustomData(data);
+			console.log("custom data",customData);
+			dataArray.push(customData);
+	});
+
+}
+async function getAllDataByRegion(region){
 	console.log("in getAllDataByRegion");
-	const dataArray = [];
-	for(let i =0;i<regionsObj[region].length;i++)
+	dataArray = [];
+	// for(let i =0;i<regionsObj[region].length;i++)
+	for(let i =0;i<5;i++)
 	{
 		const country = regionsObj[region][i];
 		const countryCode = getCountryCodeByName(country);
-		getCovidByCountry(countryCode).then(
-			data =>
-			{
+		const dataPromise = getCovidByCountry(countryCode).then(
+			data => {
+				console.log(data);
 				const customData = getCustomData(data);
+				console.log("custom data",customData);
 				dataArray.push(customData);
-			}
-		);
+		});
 
+		// await addCountryData(dataArray,data);	
 	}
 
 }

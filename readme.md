@@ -3,7 +3,9 @@
 
 ## Submitted 
 - Github
+https://github.com/sihamEgb/bootcamp_covid
 - Netlify
+https://cranky-wing-6f3ff4.netlify.app/
 - free text
 
 ## What is this app?

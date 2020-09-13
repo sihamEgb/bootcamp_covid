@@ -52,7 +52,7 @@ header{
 	padding: 5px;
 	margin: 2px;
 	border: none;
-	background-color: transparent;
+	/* background-color: transparent; */
 }
 button:hover{
 	
